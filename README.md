@@ -1,3 +1,3 @@
-# 0x02. Unity - Scripting
+# 0x03. Unity - UI
 
-## [Project](https://andersencastaneda.github.io/0x02-unity-scripting/)
+## [Project](https://andersencastaneda.github.io/0x03-unity-ui/)

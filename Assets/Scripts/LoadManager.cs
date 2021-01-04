@@ -4,17 +4,15 @@ using UnityEngine.SceneManagement;
 
 public class LoadManager : MonoBehaviour
 {
-    private readonly float time = 6f;
+    private void OnEnable() => PlayerController.OnPlayAgain += RestartLevel;
 
-    private void OnEnable() => PlayerController.OnDead += RestartLevel;
+    private void OnDisable() => PlayerController.OnPlayAgain -= RestartLevel;
 
-    private void OnDisable() => PlayerController.OnDead -= RestartLevel;
+    private void RestartLevel() => StartCoroutine(LoadScene(3));
 
-    private void RestartLevel() => StartCoroutine(LoadLevel());
-
-    private IEnumerator LoadLevel()
+    private IEnumerator LoadScene(float seconds)
     {
-        yield return new WaitForSeconds(time);
+        yield return new WaitForSeconds(seconds);
         SceneManager.LoadScene(0);
     }
 }

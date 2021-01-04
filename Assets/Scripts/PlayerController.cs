@@ -1,20 +1,24 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
     public float speed = 380f;
     public int health = 5;
+    public Text scoreText;
+    public Text healthText;
+    public Text winLoseText;
+    public Image winLoseBG;
 
     private Rigidbody _rigidbody;
     private PlayerInput _input;
     private Movement _movement;
     private int score = 0;
 
-    public static event Action OnDead;
-    public static event Action OnDamage;
-    public static event Action OnCollect;
+    public static event Action OnPlayAgain;
 
     private void Awake() => _rigidbody = GetComponent<Rigidbody>();
 
@@ -25,7 +29,12 @@ public class PlayerController : MonoBehaviour
         _movement = new Movement(_rigidbody, _input, speed);
     }
 
-    private void Update() => _input.ReadInput();
+    private void Update()
+    {
+        _input.ReadInput();
+        if (Input.GetKeyDown(KeyCode.Escape))
+            SceneManager.LoadScene("menu");
+    }
 
     private void FixedUpdate() => _movement.Tick(Time.fixedDeltaTime);
 
@@ -34,36 +43,56 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("Pickup"))
         {
             other.GetComponent<ICollectable>().Collect();
-            Collect();
-            OnCollect();
+            ++score;
+            SetScoreText();
         }
 
         if (other.CompareTag("Trap"))
             TakeDamage();
 
         if (other.CompareTag("Goal"))
-            Debug.Log("You win!");
-    }
-
-    void Collect()
-    {
-        ++score;
-        Debug.Log($"Score: {score}");
+        {
+            SetWin();
+            EndController();
+            OnPlayAgain?.Invoke();
+        }
     }
 
     void TakeDamage()
     {
         --health;
-        OnDamage();
-        Debug.Log($"Health: {health}");
-
+        SetHealthText();
         if (health == 0)
         {
-            Debug.Log("Game Over!");
-            OnDead?.Invoke();
-
-            _rigidbody.drag = 2;
-            gameObject.GetComponent<PlayerController>().enabled = false;
+            SetLose();
+            EndController();
+            OnPlayAgain?.Invoke();
         }
+    }
+
+    private void EndController()
+    {
+        _rigidbody.drag = 2;
+        gameObject.GetComponent<PlayerController>().enabled = false;
+    }
+
+    void SetScoreText() => scoreText.text = $"Score: {score}";
+
+    void SetHealthText() => healthText.text = $"Health: {health}";
+
+    void SetWin()
+    {
+        winLoseBG.gameObject.SetActive(true);
+        winLoseText.text = "You Win!";
+        winLoseText.color = Color.black;
+        winLoseBG.color = Color.green;
+    }
+
+    void SetLose()
+    {
+        winLoseBG.gameObject.SetActive(true);
+        winLoseText.text = "Game Over!";
+        winLoseText.color = Color.white;
+        winLoseBG.color = Color.red;
     }
 }
