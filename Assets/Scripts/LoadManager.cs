@@ -13,6 +13,6 @@ public class LoadManager : MonoBehaviour
     private IEnumerator LoadScene(float seconds)
     {
         yield return new WaitForSeconds(seconds);
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("maze");
     }
 }
